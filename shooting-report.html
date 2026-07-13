@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش تمرین تیراندازی PCP</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Tahoma', 'Segoe UI', sans-serif;
+            background: #e9edf2;
+            padding: 30px 20px;
+            color: #1e2b37;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px 35px;
+            border-radius: 24px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            transition: 0.3s;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1e3c4f;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .sub-title {
+            text-align: center;
+            color: #5b6f7e;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+            border-bottom: 2px solid #cbd8e3;
+            padding-bottom: 12px;
+        }
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            margin-top: 10px;
+        }
+        @media (max-width: 750px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+        }
+        @media print {
+            .no-print { display: none; }
+            body { background: white; padding: 10px; }
+            .container { box-shadow: none; padding: 20px; }
+            .btn-print, .btn-clear { display: none; }
+        }
+
+        /* ===== Target section ===== */
+        .target-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .target-section label {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #1f3a4b;
+            align-self: flex-start;
+        }
+        #target-canvas {
+            background: #f0f4f8;
+            border-radius: 50%;
+            box-shadow: 0 8px 20px rgba(0, 20, 30, 0.25);
+            border: 3px solid #2c3e50;
+            cursor: crosshair;
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 1/1;
+            display: block;
+        }
+        .target-instructions {
+            margin-top: 14px;
+            font-size: 0.9rem;
+            color: #4a5f6e;
+            background: #f2f6fa;
+            padding: 6px 18px;
+            border-radius: 40px;
+            border: 1px solid #d5e0e9;
+        }
+
+        /* ===== Form section ===== */
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            color: #1f3a4b;
+        }
+        input, textarea, select {
+            padding: 10px 14px;
+            border: 1px solid #ccd9e5;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: 'Tahoma', sans-serif;
+            background: #fbfdff;
+            transition: 0.2s;
+            width: 100%;
+        }
+        input:focus, textarea:focus {
+            border-color: #3a7ca5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(58, 124, 165, 0.2);
+            background: white;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 500px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== Buttons ===== */
+        .button-group {
+            margin-top: 35px;
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
+            letter-spacing: 0.5px;
+        }
+        .btn-print {
+            background: #2c6b8f;
+            color: white;
+        }
+        .btn-print:hover {
+            background: #1e5373;
+            transform: scale(1.02);
+        }
+        .btn-clear {
+            background: #b13e3e;
+            color: white;
+        }
+        .btn-clear:hover {
+            background: #8f2f2f;
+            transform: scale(1.02);
+        }
+        .btn-print:active, .btn-clear:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎯 گزارش تمرین تیراندازی</h1>
+    <div class="sub-title">سیبل استاندارد PCP — ۱۰ متر</div>
+
+    <div class="main-layout">
+        <!-- Target Column -->
+        <div class="target-section">
+            <label>📍 سیبل (برای ثبت تیر کلیک کنید)</label>
+            <canvas id="target-canvas" width="500" height="500"></canvas>
+            <p class="target-instructions">🔴 هر کلیک = یک تیر · دکمه پاکسازی در پایین</p>
+        </div>
+
+        <!-- Information Column -->
+        <div class="form-section">
+            <div class="row">
+                <div class="form-group">
+                    <label>📅 تاریخ</label>
+                    <input type="date" value="2026-07-10">
+                </div>
+                <div class="form-group">
+                    <label>🔢 تعداد تیر</label>
+                    <input type="number" placeholder="مثلاً ۵۰" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>🎯 تکنیک اجرا شده</label>
+                <input type="text" placeholder="ایستاده / نشسته / درازکش ...">
+            </div>
+
+            <div class="form-group">
+                <label>🧘 آمادگی قبل از تیر (بدنی/ذهنی)</label>
+                <input type="text" placeholder="عالی / کمی خسته / متمرکز ...">
+            </div>
+
+            <div class="form-group">
+                <label>👕 لباس پوشیده شده</label>
+                <input type="text" placeholder="لباس تمرینی، کت تیراندازی، ...">
+            </div>
+
+            <div class="form-group">
+                <label>📝 تحلیل شخصی</label>
+                <textarea placeholder="چه چیزی خوب بود؟ چه چیزی نیاز به اصلاح دارد؟"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>🧑‍🏫 تحلیل استاد</label>
+                <textarea placeholder="نکات مهمی که استاد گفت ..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>💭 حس و حال من</label>
+                <textarea placeholder="احساس شما در طول تمرین ..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-group no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ چاپ / ذخیره PDF</button>
+        <button class="btn-clear" onclick="clearCanvas()">🧹 پاکسازی سیبل</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const canvas = document.getElementById('target-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // ========== رسم سیبل استاندارد PCP (۱۰ متر) ==========
+        function drawTarget() {
+            const w = canvas.width;
+            const h = canvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // پس‌زمینه روشن (مانند کاغذ)
+            const bgGrad = ctx.createRadialGradient(cx, cy, 50, cx, cy, 280);
+            bgGrad.addColorStop(0, '#f5f9ff');
+            bgGrad.addColorStop(1, '#dce5ed');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // اندازه‌های سیبل PCP (مقیاس شده) 
+            // حلقه‌ها از بیرون به داخل: 200, 160, 120, 80, 40 (شعاع)
+            // عدد مرکزی 20 (منطقه ۱۰) با رنگ طلایی
+            const ringData = [
+                { r: 200, color: '#1f2a36', width: 2.5 },  // حلقه بیرونی (مرز)
+                { r: 160, color: '#2c3e50', width: 2.0 },
+                { r: 120, color: '#2c3e50', width: 2.0 },
+                { r: 80,  color: '#2c3e50', width: 2.0 },
+                { r: 40,  color: '#2c3e50', width: 2.5 },
+            ];
+
+            // رسم حلقه‌ها
+            ringData.forEach(ring => {
+                ctx.beginPath();
+                ctx.arc(cx, cy, ring.r, 0, Math.PI * 2);
+                ctx.strokeStyle = ring.color;
+                ctx.lineWidth = ring.width;
+                ctx.stroke();
+            });
+
+            // ناحیه مرکزی (bullseye) به سبک PCP – دایره طلایی با خطوط
+            // دایره مرکزی به شعاع ۲۰ (منطقه ۱۰)
+            ctx.beginPath();
+            ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+            ctx.fillStyle = '#f5c542';
+            ctx.fill();
+            ctx.strokeStyle = '#b8862c';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // اضافه کردن یک نقطه مرکزی ریز (برای دقت نشانه‌روی)
+            ctx.beginPath();
+            ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#1e2b37';
+            ctx.fill();
+
+            // خطوط چهارجهت (صلیب) برای کمک به نشانه‌روی (با opacity کم)
+            ctx.save();
+            ctx.strokeStyle = 'rgba(40, 60, 80, 0.25)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([6, 8]);
+            // افقی
+            ctx.beginPath();
+            ctx.moveTo(30, cy);
+            ctx.lineTo(w - 30, cy);
+            ctx.stroke();
+            // عمودی
+            ctx.beginPath();
+            ctx.moveTo(cx, 30);
+            ctx.lineTo(cx, h - 30);
+            ctx.stroke();
+            ctx.restore();
+
+            // نوشتن اعداد منطقه (اختیاری) – عدد ۱۰ و ۹ و ...
+            ctx.save();
+            ctx.font = 'bold 18px Tahoma, sans-serif';
+            ctx.fillStyle = '#1a2937';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            // عدد ۱۰ در مرکز (داخل دایره طلایی)
+            ctx.fillStyle = '#1a2937';
+            ctx.font = 'bold 22px Tahoma, sans-serif';
+            ctx.fillText('10', cx, cy-2);
+
+            // اعداد کناری (برای راهنمایی)
+            ctx.font = '13px Tahoma, sans-serif';
+            ctx.fillStyle = '#2f4152';
+            ctx.fillText('9', cx + 65, cy - 4);
+            ctx.fillText('8', cx + 105, cy - 4);
+            ctx.fillText('7', cx + 145, cy - 4);
+            ctx.fillText('6', cx + 185, cy - 4);
+            ctx.restore();
+
+            // برچسب 'PCP' (اختیاری)
+            ctx.save();
+            ctx.font = 'italic 14px Tahoma, sans-serif';
+            ctx.fillStyle = '#4a6072';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('· استاندارد PCP ·', w-20, h-12);
+            ctx.restore();
+        }
+
+        // ========== ثبت تیر (کلیک) ==========
+        function placeShot(x, y) {
+            // تبدیل مختصات کلیک به مختصات canvas (با در نظر گرفتن نسبت)
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;   // نسبت عرض canvas به نمایش
+            const scaleY = canvas.height / rect.height;
+
+            const canvasX = (x - rect.left) * scaleX;
+            const canvasY = (y - rect.top) * scaleY;
+
+            // محدودیت‌ها (در صورت خروج از canvas)
+            if (canvasX < 0 || canvasX > canvas.width || canvasY < 0 || canvasY > canvas.height) return;
+
+            // رسم تیر با جلوه‌ای واقع‌گرایانه‌تر (سایه + نقطه)
+            ctx.save();
+            // سایه‌ی ملایم برای عمق
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+
+            // نقطه اصلی (قرمز با هاله‌ی تیره)
+            const gradient = ctx.createRadialGradient(
+                canvasX - 2, canvasY - 2, 2,
+                canvasX, canvasY, 8
+            );
+            gradient.addColorStop(0, '#cc2233');
+            gradient.addColorStop(0.6, '#aa1122');
+            gradient.addColorStop(1, '#550011');
+
+            ctx.beginPath();
+            ctx.arc(canvasX, canvasY, 7, 0, Math.PI * 2);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // یک نقطه براق کوچک در مرکز
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(canvasX - 2, canvasY - 3, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffdddd';
+            ctx.fill();
+
+            // هاله‌ی بیرونی (حاشیه)
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = 'rgba(180, 30, 30, 0.2)';
+            ctx.beginPath();
+            ctx.arc(canvasX, canvasY, 11, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(160, 20, 20, 0.25)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // ========== رویداد کلیک ==========
+        canvas.addEventListener('click', function(event) {
+            placeShot(event.clientX, event.clientY);
+        });
+
+        // ========== پاکسازی ==========
+        window.clearCanvas = function() {
+            if (confirm('آیا مطمئن هستید که تمام تیرهای ثبت شده پاک شوند؟')) {
+                drawTarget();
+            }
+        };
+
+        // ========== بارگذاری اولیه ==========
+        drawTarget();
+
+        // در صورت تغییر اندازه، دوباره رسم (برای حفظ کیفیت)
+        window.addEventListener('resize', function() {
+            // فقط در صورت نیاز (تغییر اندازه display بر canvas تأثیر ندارد)
+        });
+    })();
+</script>
+
+</body>
+</html>
